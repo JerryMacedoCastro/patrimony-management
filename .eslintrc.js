@@ -13,6 +13,12 @@ module.exports = {
   },
   rules: {
     semi: [2, 'never'],
-    quotes: [2, 'single']
+    quotes: [2, 'single'],
+    '@typescript-eslint/no-misused-promises': [
+      'error',
+      {
+        checksVoidReturn: false
+      }
+    ]
   }
 }

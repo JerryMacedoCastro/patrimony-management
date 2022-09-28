@@ -1,7 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
+import { IPatrimony } from './patrimony.interface'
 
 @Entity()
-export class Patrimony {
+class PatrimonyEntity implements IPatrimony {
   @PrimaryGeneratedColumn()
     id: number
 
@@ -16,3 +17,5 @@ export class Patrimony {
   @Column()
     location: string
 }
+
+export default PatrimonyEntity

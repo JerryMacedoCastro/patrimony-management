@@ -6,8 +6,8 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import 'reflect-metadata'
-import { DataSource } from 'typeorm'
-import { Patrimony } from './patrimony/patrimony.model'
+import AppDataSource from '../ormconfig'
+import routes from './routes'
 
 dotenv.config()
 /**
@@ -27,33 +27,18 @@ const app = express()
 app.use(helmet())
 app.use(cors())
 app.use(express.json())
-
-/**
-  * Database connection
-  */
-const AppDataSource = new DataSource({
-  type: 'postgres',
-  host: 'localhost',
-  port: 5432,
-  username: 'root',
-  password: 'admin',
-  database: 'test',
-  entities: [Patrimony],
-  synchronize: true,
-  logging: false
-})
-// to initialize initial connection with the database, register all entities
-// and "synchronize" database schema, call "initialize()" method of a newly created database
-// once in your application bootstrap
-AppDataSource.initialize()
-  .then(() => {
-    // here you can start to work with your database
-  })
-  .catch((error) => console.log(error))
+app.use('/v1', routes)
 
 /**
  * Server Activation
  */
 app.listen(PORT, () => {
+  console.log('Starting server...')
+
+  AppDataSource.initialize()
+    .then(() => {
+      console.log('database connected')
+    })
+    .catch((error) => console.log(error))
   console.log(`Listening on port ${PORT}!`)
 })
