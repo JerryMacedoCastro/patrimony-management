@@ -9,6 +9,8 @@ routes.get('/', (_req, res) => {
 })
 
 routes.post('/patrimony', patrimonyController.Create)
+routes.put('/patrimony/:id', patrimonyController.Update)
 routes.get('/patrimony/:id?', patrimonyController.Get)
+routes.delete('/patrimony/:id', patrimonyController.Delete)
 
 export default routes
