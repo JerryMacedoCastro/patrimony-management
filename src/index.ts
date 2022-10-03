@@ -32,6 +32,7 @@ const swaggerOptions = {
  * App Variables
  */
 if (process.env.PORT == null) {
+  console.log('You need to configure the env vars')
   process.exit(1)
 }
 
