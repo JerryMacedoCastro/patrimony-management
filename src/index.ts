@@ -8,8 +8,26 @@ import helmet from 'helmet'
 import 'reflect-metadata'
 import AppDataSource from '../ormconfig'
 import routes from './routes'
+import swaggerJsDoc from 'swagger-jsdoc'
+import swaggerUI from 'swagger-ui-express'
+import path from 'path'
 
 dotenv.config()
+
+/**
+ * API Documentation
+ */
+const swaggerOptions = {
+  swaggerDefinition: {
+    info: {
+      title: 'Patrimony API',
+      version: '1.0.0'
+    }
+  },
+  apis: [path.join(__dirname, '/routes/index.ts')]
+
+}
+
 /**
  * App Variables
  */
@@ -24,6 +42,8 @@ const app = express()
 /**
  *  App Configuration
  */
+const swaggerDocs = swaggerJsDoc(swaggerOptions)
+app.use('/api/v1/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs))
 app.use(helmet())
 app.use(cors())
 app.use(express.json())
