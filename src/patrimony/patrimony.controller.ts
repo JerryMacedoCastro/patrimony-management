@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import AppDataSource from '../../ormconfig'
+import S3Storage from '../utils/S3Storage'
 import PatrimonyEntity from './patrimony.entity'
 import { IPatrimony } from './patrimony.interface'
 
@@ -37,6 +38,19 @@ class PatrimonyController {
       await patrimonyRepository.save(newPatrimony)
 
       return response.status(200).send(newPatrimony)
+    } catch ({ message }) {
+      return response.status(400).send({ error: message })
+    }
+  }
+
+  async CreateWithImage (request: Request, response: Response): Promise<Response> {
+    try {
+      const { file } = request
+      if (file === undefined) { return response.status(400).send({ error: 'file must be sent' }) }
+      const s3 = new S3Storage()
+      await s3.saveFile(file.filename)
+
+      return response.json({ success: true })
     } catch ({ message }) {
       return response.status(400).send({ error: message })
     }
