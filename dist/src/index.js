@@ -41,18 +41,6 @@ const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const path_1 = __importDefault(require("path"));
 dotenv.config();
 /**
- * API Documentation
- */
-const swaggerOptions = {
-    swaggerDefinition: {
-        info: {
-            title: 'Patrimony API',
-            version: '1.0.0'
-        }
-    },
-    apis: [path_1.default.join(__dirname, '/routes/index.ts')]
-};
-/**
  * App Variables
  */
 if (process.env.PORT == null) {
@@ -62,10 +50,29 @@ if (process.env.PORT == null) {
 const PORT = parseInt(process.env.PORT, 10);
 const app = (0, express_1.default)();
 /**
+ * API Documentation
+ */
+const swaggerOptions = {
+    swaggerDefinition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Patrimony API',
+            version: '1.0.0'
+        },
+        servers: [
+            {
+                url: `http://localhost:${PORT}/api/v1/`,
+                description: 'Patrimonies API'
+            }
+        ]
+    },
+    apis: [path_1.default.join(__dirname, '/routes/index.ts')]
+};
+/**
  *  App Configuration
  */
 const swaggerDocs = (0, swagger_jsdoc_1.default)(swaggerOptions);
-app.use('/api/v1/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerDocs));
+app.use('/api/v1/docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerDocs));
 app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
