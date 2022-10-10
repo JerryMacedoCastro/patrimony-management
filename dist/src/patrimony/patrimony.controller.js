@@ -68,10 +68,9 @@ class PatrimonyController {
                     return response.status(400).send({ error: 'Patrimony not found' });
                 }
                 if (file === undefined) {
-                    return response.status(400).send({ error: 'file must be sent' });
+                    return response.status(400).send({ error: 'file must be sent!' });
                 }
                 const s3 = new S3Storage_1.default();
-                console.log(s3);
                 yield s3.saveFile(file.filename, id);
                 return response.json({ success: true });
             }
@@ -116,8 +115,33 @@ class PatrimonyController {
                 const patrimony = yield patrimonyRepository.findOneByOrFail({
                     id: Number(id)
                 });
+                const s3 = new S3Storage_1.default();
+                const content = yield s3.getImagesFromFolder(id);
+                if (content !== undefined) {
+                    content.forEach((item) => __awaiter(this, void 0, void 0, function* () {
+                        if (item.Key !== undefined) {
+                            yield s3.deleteFile(item.Key);
+                        }
+                    }));
+                }
                 yield patrimonyRepository.remove(patrimony);
                 return response.status(200).send({ removed: patrimony });
+            }
+            catch ({ message }) {
+                return response.status(400).send({ error: message });
+            }
+        });
+    }
+    GetPatrimonyImages(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const params = request.params;
+                const { id } = params;
+                const s3 = new S3Storage_1.default();
+                const links = yield s3.getFile(id);
+                if (links === undefined)
+                    return response.status(200).send([]);
+                return response.status(200).send(links);
             }
             catch ({ message }) {
                 return response.status(400).send({ error: message });
