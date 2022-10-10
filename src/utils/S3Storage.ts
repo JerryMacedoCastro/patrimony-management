@@ -46,6 +46,17 @@ class S3Storage {
     await fs.promises.unlink(originalPath)
   }
 
+  async getImagesFromFolder (folder: string): Promise<S3.ObjectList | undefined> {
+    const imagesList = this.client.listObjectsV2({
+      Bucket: 'patrimony-management-images',
+      Prefix: folder
+    }).promise()
+
+    const content = (await imagesList).Contents
+
+    return content
+  }
+
   async deleteFile (filename: string): Promise<void> {
     await this.client
       .deleteObject({
@@ -54,6 +65,19 @@ class S3Storage {
       })
       .promise()
   }
-}
 
+  async getFile (folder: string): Promise<string[]> {
+    const content = await this.getImagesFromFolder(folder)
+    if (content === undefined) return []
+    const LinkArray: string[] = []
+    content.forEach((item) => {
+      const preSignedURL = this.client.getSignedUrl(
+        'getObject', { Bucket: 'patrimony-management-images', Key: item.Key }
+      )
+      LinkArray.push(preSignedURL)
+    })
+
+    return LinkArray
+  }
+}
 export default S3Storage

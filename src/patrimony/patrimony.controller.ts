@@ -10,6 +10,7 @@ class PatrimonyController {
       const params = request.query
       const { id } = params
       const patrimonyRepository = AppDataSource.getRepository(PatrimonyEntity)
+
       let res
       if (id === '0' || id === undefined) {
         res = await patrimonyRepository.find()
@@ -51,10 +52,10 @@ class PatrimonyController {
       const patrimony = await patrimonyRepository.findOneBy({
         id: Number(id)
       })
+
       if (patrimony === null) { return response.status(400).send({ error: 'Patrimony not found' }) }
-      if (file === undefined) { return response.status(400).send({ error: 'file must be sent' }) }
+      if (file === undefined) { return response.status(400).send({ error: 'file must be sent!' }) }
       const s3 = new S3Storage()
-      console.log(s3)
       await s3.saveFile(file.filename, id)
 
       return response.json({ success: true })
@@ -100,9 +101,31 @@ class PatrimonyController {
         id: Number(id)
       })
 
+      const s3 = new S3Storage()
+      const content = await s3.getImagesFromFolder(id)
+      if (content !== undefined) {
+        content.forEach(async (item) => {
+          if (item.Key !== undefined) { await s3.deleteFile(item.Key) }
+        })
+      }
+
       await patrimonyRepository.remove(patrimony)
 
       return response.status(200).send({ removed: patrimony })
+    } catch ({ message }) {
+      return response.status(400).send({ error: message })
+    }
+  }
+
+  async GetPatrimonyImages (request: Request, response: Response): Promise<Response> {
+    try {
+      const params = request.params
+      const { id } = params
+      const s3 = new S3Storage()
+      const links = await s3.getFile(id)
+      if (links === undefined) return response.status(200).send([])
+
+      return response.status(200).send(links)
     } catch ({ message }) {
       return response.status(400).send({ error: message })
     }
