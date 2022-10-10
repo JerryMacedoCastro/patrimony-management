@@ -6,4 +6,6 @@ export interface IPatrimony {
   number: string
 
   location: string
+
+  imagePath: string
 }

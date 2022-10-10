@@ -16,6 +16,9 @@ class PatrimonyEntity implements IPatrimony {
 
   @Column()
     location: string
+
+  @Column({ nullable: true })
+    imagePath: string
 }
 
 export default PatrimonyEntity

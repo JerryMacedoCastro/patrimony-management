@@ -15,20 +15,6 @@ import path from 'path'
 dotenv.config()
 
 /**
- * API Documentation
- */
-const swaggerOptions = {
-  swaggerDefinition: {
-    info: {
-      title: 'Patrimony API',
-      version: '1.0.0'
-    }
-  },
-  apis: [path.join(__dirname, '/routes/index.ts')]
-
-}
-
-/**
  * App Variables
  */
 if (process.env.PORT == null) {
@@ -41,10 +27,31 @@ const PORT: number = parseInt(process.env.PORT, 10)
 const app = express()
 
 /**
+ * API Documentation
+ */
+const swaggerOptions = {
+  swaggerDefinition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Patrimony API',
+      version: '1.0.0'
+    },
+    servers: [
+      {
+        url: `http://localhost:${PORT}/api/v1/`,
+        description: 'Patrimonies API'
+      }
+    ]
+  },
+  apis: [path.join(__dirname, '/routes/index.ts')]
+
+}
+
+/**
  *  App Configuration
  */
 const swaggerDocs = swaggerJsDoc(swaggerOptions)
-app.use('/api/v1/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs))
+app.use('/api/v1/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs))
 app.use(helmet())
 app.use(cors())
 app.use(express.json())
