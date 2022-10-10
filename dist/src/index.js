@@ -61,12 +61,15 @@ const swaggerOptions = {
         },
         servers: [
             {
-                url: `http://localhost:${PORT}/api/v1/`,
+                url: 'http://ld-patrimony-management-1460998202.us-east-1.elb.amazonaws.com/api/v1',
                 description: 'Patrimonies API'
             }
         ]
     },
-    apis: [path_1.default.join(__dirname, '/routes/index.ts')]
+    apis: [
+        path_1.default.join(__dirname, '/routes/index.ts'),
+        path_1.default.join(__dirname, '/routes/index.js')
+    ]
 };
 /**
  *  App Configuration
