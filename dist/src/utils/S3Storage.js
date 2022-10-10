@@ -75,6 +75,16 @@ class S3Storage {
             yield fs_1.default.promises.unlink(originalPath);
         });
     }
+    getImagesFromFolder(folder) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const imagesList = this.client.listObjectsV2({
+                Bucket: 'patrimony-management-images',
+                Prefix: folder
+            }).promise();
+            const content = (yield imagesList).Contents;
+            return content;
+        });
+    }
     deleteFile(filename) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.client
@@ -83,6 +93,19 @@ class S3Storage {
                 Key: filename
             })
                 .promise();
+        });
+    }
+    getFile(folder) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const content = yield this.getImagesFromFolder(folder);
+            if (content === undefined)
+                return [];
+            const LinkArray = [];
+            content.forEach((item) => {
+                const preSignedURL = this.client.getSignedUrl('getObject', { Bucket: 'patrimony-management-images', Key: item.Key });
+                LinkArray.push(preSignedURL);
+            });
+            return LinkArray;
         });
     }
 }

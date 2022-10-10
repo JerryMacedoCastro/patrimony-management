@@ -38,7 +38,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: 'http://ld-patrimony-management-1460998202.us-east-1.elb.amazonaws.com/api/v1',
+        url: 'http://localhost:3000/api/v1',
         description: 'Patrimonies API'
       }
     ]

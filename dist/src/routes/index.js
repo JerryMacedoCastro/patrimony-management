@@ -47,6 +47,8 @@ const upload = (0, multer_1.default)(upload_1.default);
  *             type: integer
  *           message:
  *             type: string
+ *   imgLink:
+ *       type: string
  */
 routes.get('/', (_req, res) => {
     res.send('Hello darkness my old friend!');
@@ -145,6 +147,15 @@ routes.put('/patrimony/:id', patrimonyController.Update);
  *   delete:
  *     tags: [patrimony]
  *     description: delete a patrimony
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *           minimum: 0
+ *         required: true
+ *         description: Numeric ID of the patrimony
  *     responses:
  *       200:
  *         description: Patrimony deleted
@@ -166,6 +177,15 @@ routes.delete('/patrimony/:id', patrimonyController.Delete);
  *   post:
  *     tags: [patrimony]
  *     description: add a image for patrimony
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *           minimum: 0
+ *         required: true
+ *         description: Numeric ID of the patrimony of the img
  *     requestBody:
  *       description: Patrimony info to be created
  *       required: true
@@ -189,4 +209,34 @@ routes.delete('/patrimony/:id', patrimonyController.Delete);
  *               $ref: '#definitions/error'
  */
 routes.post('/patrimonyimg/:id', upload.single('image'), patrimonyController.CreateWithImage);
+/**
+ * @swagger
+ * /patrimonyimg/{id}:
+ *   get:
+ *     tags: [patrimony]
+ *     description: return all images from a specific patrimony
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Numeric ID of the patrimony to get
+ *     responses:
+ *       200:
+ *         description: Array of image links
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#definitions/imgLink'
+ *       400:
+ *         description: Error on getting patrimonies
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/error'
+ */
+routes.get('/patrimonyimg/:id', patrimonyController.GetPatrimonyImages);
 exports.default = routes;
