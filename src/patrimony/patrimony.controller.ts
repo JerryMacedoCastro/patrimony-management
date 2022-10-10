@@ -7,17 +7,17 @@ import { IPatrimony } from './patrimony.interface'
 class PatrimonyController {
   async Get (request: Request, response: Response): Promise<Response> {
     try {
-      const params = request.params
+      const params = request.query
       const { id } = params
       const patrimonyRepository = AppDataSource.getRepository(PatrimonyEntity)
       let res
-      if (params !== undefined) {
+      if (id === '0' || id === undefined) {
         res = await patrimonyRepository.find()
       } else {
         res = await patrimonyRepository.findOneBy({ id: Number(id) })
       }
 
-      return response.status(200).send(res)
+      return response.status(200).send(res !== null ? res : [])
     } catch ({ message }) {
       return response.status(400).send({ error: message })
     }
@@ -45,10 +45,17 @@ class PatrimonyController {
 
   async CreateWithImage (request: Request, response: Response): Promise<Response> {
     try {
+      const { id } = request.params
       const { file } = request
+      const patrimonyRepository = AppDataSource.getRepository(PatrimonyEntity)
+      const patrimony = await patrimonyRepository.findOneBy({
+        id: Number(id)
+      })
+      if (patrimony === null) { return response.status(400).send({ error: 'Patrimony not found' }) }
       if (file === undefined) { return response.status(400).send({ error: 'file must be sent' }) }
       const s3 = new S3Storage()
-      await s3.saveFile(file.filename)
+      console.log(s3)
+      await s3.saveFile(file.filename, id)
 
       return response.json({ success: true })
     } catch ({ message }) {

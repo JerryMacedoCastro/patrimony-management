@@ -9,14 +9,18 @@ dotenv.config()
 
 class S3Storage {
   private readonly client: S3
-
   constructor () {
     this.client = new aws.S3({
-      region: 'us-east-1'
+      region: 'us-east-1',
+      credentials: {
+        accessKeyId: process.env.aws_access_key_id,
+        secretAccessKey: process.env.aws_secret_access_key,
+        sessionToken: process.env.aws_session_token
+      }
     })
   }
 
-  async saveFile (filename: string): Promise<void> {
+  async saveFile (filename: string, folder: string): Promise<void> {
     const originalPath = path.resolve(uploadConfig.directory, filename)
 
     const ContentType = mime.getType(originalPath)
@@ -30,7 +34,7 @@ class S3Storage {
     await this.client
       .putObject({
         Bucket: 'patrimony-management-images',
-        Key: filename,
+        Key: `${folder}/${filename}`,
         ACL: 'public-read',
         Body: fileContent,
         ContentType

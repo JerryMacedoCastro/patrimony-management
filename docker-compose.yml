@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  nodejs:
+    image: node:18.0.0
+    restart: unless-stopped
+    env_file: /home/ubuntu/patrimony-management/.env
+    ports:
+      - "80:3000"
+    volumes:
+      - /home/ubuntu/patrimony-management:/home/app
+    command: node /home/app/dist/src/index.js
