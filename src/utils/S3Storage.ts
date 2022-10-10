@@ -7,14 +7,16 @@ import uploadConfig from '../config/upload'
 
 dotenv.config()
 
+const keyId = process.env.aws_access_key_id !== undefined ? process.env.aws_access_key_id : ''
+const secretKey = process.env.aws_secret_access_key !== undefined ? process.env.aws_secret_access_key : ''
 class S3Storage {
   private readonly client: S3
   constructor () {
     this.client = new aws.S3({
       region: 'us-east-1',
       credentials: {
-        accessKeyId: process.env.aws_access_key_id,
-        secretAccessKey: process.env.aws_secret_access_key,
+        accessKeyId: keyId,
+        secretAccessKey: secretKey,
         sessionToken: process.env.aws_session_token
       }
     })

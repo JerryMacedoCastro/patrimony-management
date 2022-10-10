@@ -13,22 +13,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const ormconfig_1 = __importDefault(require("../../ormconfig"));
+const S3Storage_1 = __importDefault(require("../utils/S3Storage"));
 const patrimony_entity_1 = __importDefault(require("./patrimony.entity"));
 class PatrimonyController {
     Get(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const params = request.params;
+                const params = request.query;
                 const { id } = params;
                 const patrimonyRepository = ormconfig_1.default.getRepository(patrimony_entity_1.default);
                 let res;
-                if (params !== undefined) {
+                if (id === '0' || id === undefined) {
                     res = yield patrimonyRepository.find();
                 }
                 else {
                     res = yield patrimonyRepository.findOneBy({ id: Number(id) });
                 }
-                return response.status(200).send(res);
+                return response.status(200).send(res !== null ? res : []);
             }
             catch ({ message }) {
                 return response.status(400).send({ error: message });
@@ -48,6 +49,31 @@ class PatrimonyController {
                 const newPatrimony = patrimonyRepository.create({ name, number, location });
                 yield patrimonyRepository.save(newPatrimony);
                 return response.status(200).send(newPatrimony);
+            }
+            catch ({ message }) {
+                return response.status(400).send({ error: message });
+            }
+        });
+    }
+    CreateWithImage(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { id } = request.params;
+                const { file } = request;
+                const patrimonyRepository = ormconfig_1.default.getRepository(patrimony_entity_1.default);
+                const patrimony = yield patrimonyRepository.findOneBy({
+                    id: Number(id)
+                });
+                if (patrimony === null) {
+                    return response.status(400).send({ error: 'Patrimony not found' });
+                }
+                if (file === undefined) {
+                    return response.status(400).send({ error: 'file must be sent' });
+                }
+                const s3 = new S3Storage_1.default();
+                console.log(s3);
+                yield s3.saveFile(file.filename, id);
+                return response.json({ success: true });
             }
             catch ({ message }) {
                 return response.status(400).send({ error: message });
