@@ -22,23 +22,34 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const typeorm_1 = require("typeorm");
-const patrimony_entity_1 = __importDefault(require("./src/patrimony/patrimony.entity"));
-const user_entity_1 = __importDefault(require("./src/user/user.entity"));
-const dotenv = __importStar(require("dotenv"));
-dotenv.config();
-const AppDataSource = new typeorm_1.DataSource({
-    type: 'postgres',
-    host: process.env.POSTGRES_HOST,
-    port: Number(process.env.POSTGRES_PORT),
-    username: process.env.POSTGRES_USER,
-    password: process.env.POSTGRES_PASSWORD,
-    database: process.env.POSTGRES_DB,
-    entities: [patrimony_entity_1.default, user_entity_1.default],
-    synchronize: true
-});
-exports.default = AppDataSource;
+exports.checkJwt = void 0;
+const jwt = __importStar(require("jsonwebtoken"));
+const checkJwt = (req, res, next) => {
+    // Get the jwt token from the head
+    const { cookies } = req;
+    const token = cookies.Authorization;
+    let jwtPayload;
+    const jwtSecret = process.env.SECRET !== undefined ? process.env.SECRET : '';
+    // Try to validate the token and get data
+    try {
+        jwtPayload = jwt.verify(token, jwtSecret);
+        console.log(jwtPayload);
+        res.locals.jwtPayload = jwtPayload;
+    }
+    catch ({ message }) {
+        // If token is not valid, respond with 401 (unauthorized)
+        res.status(401).send({ error: message });
+        return;
+    }
+    // The token is valid for 1 hour
+    // We want to send a new token on every request
+    const { id, email } = jwtPayload;
+    const newToken = jwt.sign({ id, email }, jwtSecret, {
+        expiresIn: '1h'
+    });
+    res.setHeader('token', newToken);
+    // Call the next middleware or controller
+    next();
+};
+exports.checkJwt = checkJwt;

@@ -39,6 +39,8 @@ const routes_1 = __importDefault(require("./routes"));
 const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const path_1 = __importDefault(require("path"));
+const bodyParser = __importStar(require("body-parser"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 dotenv.config();
 /**
  * App Variables
@@ -79,6 +81,8 @@ app.use('/api/v1/docs', swagger_ui_express_1.default.serve, swagger_ui_express_1
 app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
+app.use(bodyParser.json());
+app.use((0, cookie_parser_1.default)());
 app.use('/api/v1', routes_1.default);
 /**
  * Server Activation
