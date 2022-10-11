@@ -5,14 +5,50 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const patrimony_controller_1 = __importDefault(require("../patrimony/patrimony.controller"));
+const user_controller_1 = __importDefault(require("../user/user.controller"));
+const auth_controller_1 = __importDefault(require("../auth/auth.controller"));
 const multer_1 = __importDefault(require("multer"));
 const upload_1 = __importDefault(require("../config/upload"));
+const checkJwt_1 = require("../middlewares/checkJwt");
 const patrimonyController = new patrimony_controller_1.default();
+const userController = new user_controller_1.default();
+const authController = new auth_controller_1.default();
 const routes = (0, express_1.Router)();
 const upload = (0, multer_1.default)(upload_1.default);
 /**
  * @swagger
  * definitions:
+ *   auth:
+ *     type: object
+ *     properties:
+ *       email:
+ *         type: string
+ *       password:
+ *         type: string
+ *   user:
+ *     type: object
+ *     properties:
+ *       id:
+ *         type: integer
+ *       name:
+ *         type: string
+ *       email:
+ *         type: string
+ *       password:
+ *         type: string
+ *   userLogedIn:
+ *     type: object
+ *     properties:
+ *       id:
+ *         type: integer
+ *       name:
+ *         type: string
+ *       email:
+ *         type: string
+ *       password:
+ *         type: string
+ *       token:
+ *         type: string
  *   patrimony:
  *     type: object
  *     properties:
@@ -26,6 +62,15 @@ const upload = (0, multer_1.default)(upload_1.default);
  *         type: string
  *       imagePath:
  *         type: string
+ *   userRequestBody:
+ *     type: object
+ *     properties:
+ *       name:
+ *         type: string
+ *       email:
+ *         type: string
+ *       password:
+ *         : string
  *   patrimonyRequestBody:
  *     type: object
  *     properties:
@@ -47,6 +92,18 @@ const upload = (0, multer_1.default)(upload_1.default);
  *             type: integer
  *           message:
  *             type: string
+ *   password:
+ *     type: object
+ *     properties:
+ *       oldPassword:
+ *         type: string
+ *       newPassword:
+ *         type: string
+ *   logedOutMessage:
+ *     type: object
+ *     properties:
+ *       message:
+ *         type: string
  *   imgLink:
  *       type: string
  */
@@ -90,7 +147,7 @@ routes.get('/patrimony/:id?', patrimonyController.Get);
  * /patrimony:
  *   post:
  *     tags: [patrimony]
- *     description: return all patrimonies or a specific patrimony by id
+ *     description: create a patrimony
  *     requestBody:
  *       description: Patrimony info to be added
  *       required: true
@@ -239,4 +296,141 @@ routes.post('/patrimonyimg/:id', upload.single('image'), patrimonyController.Cre
  *               $ref: '#definitions/error'
  */
 routes.get('/patrimonyimg/:id', patrimonyController.GetPatrimonyImages);
+/**
+ * @swagger
+ * /user:
+ *   post:
+ *     tags: [user]
+ *     description: create an user
+ *     requestBody:
+ *       description: user to be created
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#definitions/userRequestBody'
+ *     responses:
+ *       200:
+ *         description: User created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/user'
+ *       400:
+ *         description: Error on creating user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/error'
+ */
+routes.post('/user', userController.createUser);
+/**
+ * @swagger
+ * /user/{id}:
+ *   get:
+ *     tags: [user]
+ *     description: return all users or a specific user by id
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *           minimum: 0
+ *         required: false
+ *         description: Numeric ID of the user to get
+ *     responses:
+ *       200:
+ *         description: Array of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#definitions/user'
+ *       400:
+ *         description: Error on getting users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/error'
+ */
+routes.get('/user/:userId?', userController.getUsers);
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     tags: [auth]
+ *     description: log in
+ *     requestBody:
+ *       description: user info to log in
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#definitions/auth'
+ *     responses:
+ *       200:
+ *         description: user information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/userLogedIn'
+ *       400:
+ *         description: Error on getting users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/error'
+ */
+routes.post('/login', authController.login);
+/**
+ * @swagger
+ * /change-password:
+ *   post:
+ *     tags: [auth]
+ *     description: update password
+ *     requestBody:
+ *       description: current and new password
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#definitions/password'
+ *     responses:
+ *       200:
+ *         description: success message
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/logedOutMessage'
+ *       400:
+ *         description: Error changing password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/logedOutMessage'
+ */
+routes.post('/change-password', [checkJwt_1.checkJwt], authController.changePassword);
+/**
+ * @swagger
+ * /logout:
+ *   post:
+ *     tags: [auth]
+ *     description: update password
+ *     responses:
+ *       200:
+ *         description: success message
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/logedOutMessage'
+ *       400:
+ *         description: Error loging out
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/logedOutMessage'
+ */
+routes.post('/logout', authController.logout);
 exports.default = routes;

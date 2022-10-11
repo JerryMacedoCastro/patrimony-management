@@ -11,6 +11,8 @@ import routes from './routes'
 import swaggerJsDoc from 'swagger-jsdoc'
 import swaggerUI from 'swagger-ui-express'
 import path from 'path'
+import * as bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
 
 dotenv.config()
 
@@ -58,6 +60,8 @@ app.use('/api/v1/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs))
 app.use(helmet())
 app.use(cors())
 app.use(express.json())
+app.use(bodyParser.json())
+app.use(cookieParser())
 app.use('/api/v1', routes)
 
 /**
