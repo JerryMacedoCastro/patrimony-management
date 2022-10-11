@@ -2,14 +2,27 @@ import { Router } from 'express'
 import PatrimonyController from '../patrimony/patrimony.controller'
 import multer from 'multer'
 import multerConfig from '../config/upload'
+import UserController from '../user/user.controller'
 
 const patrimonyController = new PatrimonyController()
+const userController = new UserController()
 const routes = Router()
 const upload = multer(multerConfig)
 
 /**
  * @swagger
  * definitions:
+ *   user:
+ *     type: object
+ *     properties:
+ *       id:
+ *         type: integer
+ *       name:
+ *         type: string
+ *       email:
+ *         type: string
+ *       password:
+ *         type: string
  *   patrimony:
  *     type: object
  *     properties:
@@ -23,6 +36,15 @@ const upload = multer(multerConfig)
  *         type: string
  *       imagePath:
  *         type: string
+ *   userRequestBody:
+ *     type: object
+ *     properties:
+ *       name:
+ *         type: string
+ *       email:
+ *         type: string
+ *       password:
+ *         : string
  *   patrimonyRequestBody:
  *     type: object
  *     properties:
@@ -89,7 +111,7 @@ routes.get('/patrimony/:id?', patrimonyController.Get)
  * /patrimony:
  *   post:
  *     tags: [patrimony]
- *     description: return all patrimonies or a specific patrimony by id
+ *     description: create a patrimony
  *     requestBody:
  *       description: Patrimony info to be added
  *       required: true
@@ -242,5 +264,67 @@ routes.post('/patrimonyimg/:id', upload.single('image'), patrimonyController.Cre
  *               $ref: '#definitions/error'
  */
 routes.get('/patrimonyimg/:id', patrimonyController.GetPatrimonyImages)
+
+/**
+ * @swagger
+ * /user:
+ *   post:
+ *     tags: [user]
+ *     description: create an user
+ *     requestBody:
+ *       description: user to be created
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#definitions/userRequestBody'
+ *     responses:
+ *       200:
+ *         description: User created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/user'
+ *       400:
+ *         description: Error on creating user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/error'
+ */
+routes.post('/user', userController.createUser)
+
+/**
+ * @swagger
+ * /user/{id}:
+ *   get:
+ *     tags: [user]
+ *     description: return all users or a specific user by id
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *           minimum: 0
+ *         required: false
+ *         description: Numeric ID of the user to get
+ *     responses:
+ *       200:
+ *         description: Array of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#definitions/user'
+ *       400:
+ *         description: Error on getting users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/error'
+ */
+routes.get('/user/:userId?', userController.getUsers)
 
 export default routes

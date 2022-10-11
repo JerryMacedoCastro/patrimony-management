@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm'
 import Patrimony from './src/patrimony/patrimony.entity'
+import User from './src/user/user.entity'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
@@ -11,7 +12,7 @@ const AppDataSource = new DataSource({
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
-  entities: [Patrimony],
+  entities: [Patrimony, User],
   synchronize: true
 })
 
