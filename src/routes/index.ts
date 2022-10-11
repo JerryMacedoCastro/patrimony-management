@@ -1,17 +1,27 @@
 import { Router } from 'express'
 import PatrimonyController from '../patrimony/patrimony.controller'
+import UserController from '../user/user.controller'
+import AuthController from '../auth/auth.controller'
 import multer from 'multer'
 import multerConfig from '../config/upload'
-import UserController from '../user/user.controller'
+import { checkJwt } from '../middlewares/checkJwt'
 
 const patrimonyController = new PatrimonyController()
 const userController = new UserController()
+const authController = new AuthController()
 const routes = Router()
 const upload = multer(multerConfig)
 
 /**
  * @swagger
  * definitions:
+ *   auth:
+ *     type: object
+ *     properties:
+ *       email:
+ *         type: string
+ *       password:
+ *         type: string
  *   user:
  *     type: object
  *     properties:
@@ -22,6 +32,19 @@ const upload = multer(multerConfig)
  *       email:
  *         type: string
  *       password:
+ *         type: string
+ *   userLogedIn:
+ *     type: object
+ *     properties:
+ *       id:
+ *         type: integer
+ *       name:
+ *         type: string
+ *       email:
+ *         type: string
+ *       password:
+ *         type: string
+ *       token:
  *         type: string
  *   patrimony:
  *     type: object
@@ -66,6 +89,18 @@ const upload = multer(multerConfig)
  *             type: integer
  *           message:
  *             type: string
+ *   password:
+ *     type: object
+ *     properties:
+ *       oldPassword:
+ *         type: string
+ *       newPassword:
+ *         type: string
+ *   logedOutMessage:
+ *     type: object
+ *     properties:
+ *       message:
+ *         type: string
  *   imgLink:
  *       type: string
  */
@@ -326,5 +361,85 @@ routes.post('/user', userController.createUser)
  *               $ref: '#definitions/error'
  */
 routes.get('/user/:userId?', userController.getUsers)
+
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     tags: [auth]
+ *     description: log in
+ *     requestBody:
+ *       description: user info to log in
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#definitions/auth'
+ *     responses:
+ *       200:
+ *         description: user information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/userLogedIn'
+ *       400:
+ *         description: Error on getting users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/error'
+ */
+routes.post('/login', authController.login)
+
+/**
+ * @swagger
+ * /change-password:
+ *   post:
+ *     tags: [auth]
+ *     description: update password
+ *     requestBody:
+ *       description: current and new password
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#definitions/password'
+ *     responses:
+ *       200:
+ *         description: success message
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/logedOutMessage'
+ *       400:
+ *         description: Error changing password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/logedOutMessage'
+ */
+routes.post('/change-password', [checkJwt], authController.changePassword)
+
+/**
+ * @swagger
+ * /logout:
+ *   post:
+ *     tags: [auth]
+ *     description: update password
+ *     responses:
+ *       200:
+ *         description: success message
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/logedOutMessage'
+ *       400:
+ *         description: Error loging out
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#definitions/logedOutMessage'
+ */
+routes.post('/logout', authController.logout)
 
 export default routes
