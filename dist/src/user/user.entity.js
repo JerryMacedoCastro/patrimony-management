@@ -31,10 +31,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const bcrypt = __importStar(require("bcrypt"));
-let User = class User {
+const patrimony_entity_1 = __importDefault(require("../patrimony/patrimony.entity"));
+let UserEntity = class UserEntity {
     hashPassword() {
         this.password = bcrypt.hashSync(this.password, 10);
     }
@@ -45,20 +49,24 @@ let User = class User {
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
-], User.prototype, "id", void 0);
+], UserEntity.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: false }),
     __metadata("design:type", String)
-], User.prototype, "name", void 0);
+], UserEntity.prototype, "name", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: false }),
     __metadata("design:type", String)
-], User.prototype, "email", void 0);
+], UserEntity.prototype, "email", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: false }),
     __metadata("design:type", String)
-], User.prototype, "password", void 0);
-User = __decorate([
+], UserEntity.prototype, "password", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => patrimony_entity_1.default, patrimony => patrimony.user),
+    __metadata("design:type", Array)
+], UserEntity.prototype, "patrimonies", void 0);
+UserEntity = __decorate([
     (0, typeorm_1.Entity)()
-], User);
-exports.default = User;
+], UserEntity);
+exports.default = UserEntity;

@@ -57,8 +57,6 @@ const upload = multer(multerConfig)
  *         type: string
  *       location:
  *         type: string
- *       imagePath:
- *         type: string
  *   userRequestBody:
  *     type: object
  *     properties:
@@ -67,7 +65,7 @@ const upload = multer(multerConfig)
  *       email:
  *         type: string
  *       password:
- *         : string
+ *         type: string
  *   patrimonyRequestBody:
  *     type: object
  *     properties:
@@ -77,8 +75,8 @@ const upload = multer(multerConfig)
  *         type: string
  *       location:
  *         type: string
- *       imagePath:
- *         type: string
+ *       userId:
+ *         type: integer
  *   error:
  *     type: object
  *     properties:
