@@ -1,3 +1,5 @@
+import { IUser } from '../user/user.interface'
+
 export interface IPatrimony {
   id: number
 
@@ -7,5 +9,5 @@ export interface IPatrimony {
 
   location: string
 
-  imagePath: string
+  user: IUser
 }

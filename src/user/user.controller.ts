@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import AppDataSource from '../../ormconfig'
-import User from './user.entity'
+import UserEntity from './user.entity'
 
 class UserController {
   async createUser (
@@ -10,7 +10,7 @@ class UserController {
     const { email, name, password } = request.body
 
     try {
-      const userRepository = AppDataSource.getRepository(User)
+      const userRepository = AppDataSource.getRepository(UserEntity)
       const isExistingUser = await userRepository.findOneBy({ email })
 
       if (isExistingUser != null) { throw new Error('The email already exists!!') }
@@ -36,7 +36,7 @@ class UserController {
     try {
       const { userId } = request.params
 
-      const userRepository = AppDataSource.getRepository(User)
+      const userRepository = AppDataSource.getRepository(UserEntity)
       if (userId !== undefined && userId !== '0') {
         const user = await userRepository.findOneBy({ id: Number(userId) })
         if (user != null) return response.status(200).send(user)
