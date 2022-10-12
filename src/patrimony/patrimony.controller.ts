@@ -3,7 +3,6 @@ import AppDataSource from '../../ormconfig'
 import UserEntity from '../user/user.entity'
 import S3Storage from '../utils/S3Storage'
 import PatrimonyEntity from './patrimony.entity'
-import { IPatrimony } from './patrimony.interface'
 
 class PatrimonyController {
   async Get (request: Request, response: Response): Promise<Response> {
@@ -16,7 +15,7 @@ class PatrimonyController {
       if (id === '0' || id === undefined) {
         res = await patrimonyRepository.find({ relations: ['user'] })
       } else {
-        res = await patrimonyRepository.findOneBy({ relations: ['user'], where: { id: Number(id) } })
+        res = await patrimonyRepository.findOne({ where: { id: Number(id) }, relations: ['user'] })
       }
 
       return response.status(200).send(res !== null ? res : [])
@@ -76,8 +75,14 @@ class PatrimonyController {
       const params = request.params
       const { id } = params
       const patrimonyRepository = AppDataSource.getRepository(PatrimonyEntity)
-      const { name, number, location }: IPatrimony = request.body
+      const { name, number, location, userId } = request.body
+      const userRepository = AppDataSource.getRepository(UserEntity)
 
+      const isExistingUser = await userRepository.findOneBy({
+        id: Number(userId)
+      })
+
+      if (isExistingUser === null || isExistingUser === undefined) throw new Error('invalid user id')
       if (name === undefined) throw new Error('Propert name is required!')
       if (number === undefined) throw new Error('Propert number is required!')
       if (location === undefined) throw new Error('Propert location is required!')
@@ -89,6 +94,7 @@ class PatrimonyController {
       patrimonyToUpdate.name = name
       patrimonyToUpdate.location = location
       patrimonyToUpdate.number = number
+      patrimonyToUpdate.user = isExistingUser
 
       await patrimonyRepository.save(patrimonyToUpdate)
 

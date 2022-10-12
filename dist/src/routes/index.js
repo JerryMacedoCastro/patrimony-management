@@ -60,8 +60,6 @@ const upload = (0, multer_1.default)(upload_1.default);
  *         type: string
  *       location:
  *         type: string
- *       imagePath:
- *         type: string
  *   userRequestBody:
  *     type: object
  *     properties:
@@ -70,7 +68,7 @@ const upload = (0, multer_1.default)(upload_1.default);
  *       email:
  *         type: string
  *       password:
- *         : string
+ *         type: string
  *   patrimonyRequestBody:
  *     type: object
  *     properties:
@@ -80,8 +78,8 @@ const upload = (0, multer_1.default)(upload_1.default);
  *         type: string
  *       location:
  *         type: string
- *       imagePath:
- *         type: string
+ *       userId:
+ *         type: integer
  *   error:
  *     type: object
  *     properties:
