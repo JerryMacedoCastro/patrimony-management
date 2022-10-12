@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm'
 import { IPatrimony } from './patrimony.interface'
 
 @Entity()
@@ -17,8 +17,10 @@ class PatrimonyEntity implements IPatrimony {
   @Column()
     location: string
 
-  @Column({ nullable: true })
-    imagePath: string
+  @ManyToOne(() => User, user => user.patrimonies, {
+    nullable: false
+  })
+    user: User
 }
 
 export default PatrimonyEntity
