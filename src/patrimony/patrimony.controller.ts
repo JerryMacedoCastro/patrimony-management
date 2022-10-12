@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import AppDataSource from '../../ormconfig'
+import UserEntity from '../user/user.entity'
 import S3Storage from '../utils/S3Storage'
 import PatrimonyEntity from './patrimony.entity'
 import { IPatrimony } from './patrimony.interface'
@@ -13,9 +14,9 @@ class PatrimonyController {
 
       let res
       if (id === '0' || id === undefined) {
-        res = await patrimonyRepository.find()
+        res = await patrimonyRepository.find({ relations: ['user'] })
       } else {
-        res = await patrimonyRepository.findOneBy({ id: Number(id) })
+        res = await patrimonyRepository.findOneBy({ relations: ['user'], where: { id: Number(id) } })
       }
 
       return response.status(200).send(res !== null ? res : [])
@@ -26,16 +27,22 @@ class PatrimonyController {
 
   async Create (request: Request, response: Response): Promise<Response> {
     try {
-      const patrimonyRepository = AppDataSource.getRepository(PatrimonyEntity)
-      const { name, number, location }: IPatrimony = request.body
+      const { name, number, location, userId } = request.body
 
+      const patrimonyRepository = AppDataSource.getRepository(PatrimonyEntity)
+      const userRepository = AppDataSource.getRepository(UserEntity)
       const isExistingPatrimony = await patrimonyRepository.findOneBy({
         name
       })
 
-      if (isExistingPatrimony != null) throw new Error('The given patrimony already exists')
+      const isExistingUser = await userRepository.findOneBy({
+        id: Number(userId)
+      })
 
-      const newPatrimony = patrimonyRepository.create({ name, number, location })
+      if (isExistingPatrimony !== null) throw new Error('The given patrimony already exists')
+      if (isExistingUser === null) throw new Error('The given user does not exist')
+
+      const newPatrimony = patrimonyRepository.create({ name, number, location, user: isExistingUser })
       await patrimonyRepository.save(newPatrimony)
 
       return response.status(200).send(newPatrimony)
