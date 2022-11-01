@@ -41,6 +41,7 @@ const mime_1 = __importDefault(require("mime"));
 const aws_sdk_1 = __importDefault(require("aws-sdk"));
 const dotenv = __importStar(require("dotenv"));
 const upload_1 = __importDefault(require("../config/upload"));
+const Minio = __importStar(require("minio"));
 dotenv.config();
 const keyId = process.env.aws_access_key_id !== undefined ? process.env.aws_access_key_id : '';
 const secretKey = process.env.aws_secret_access_key !== undefined ? process.env.aws_secret_access_key : '';
@@ -49,10 +50,18 @@ class S3Storage {
         this.client = new aws_sdk_1.default.S3({
             region: 'us-east-1',
             credentials: {
-                accessKeyId: keyId,
-                secretAccessKey: secretKey,
-                sessionToken: process.env.aws_session_token
-            }
+                accessKeyId: 'Q3AM3UQ867SPQQA43P2F',
+                secretAccessKey: 'zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG'
+            },
+            endpoint: 'http://play.minio.io:9000',
+            sslEnabled: false,
+            s3ForcePathStyle: true
+        });
+        this.clientMinIO = new Minio.Client({
+            endPoint: 's3.amazonaws.com',
+            accessKey: keyId,
+            secretKey,
+            sessionToken: process.env.aws_session_token
         });
     }
     saveFile(filename, folder) {
@@ -83,6 +92,20 @@ class S3Storage {
             }).promise();
             const content = (yield imagesList).Contents;
             return content;
+        });
+    }
+    getImagesFromFolderMinIO(folder) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const objectsList = yield new Promise((resolve, reject) => {
+                const objectsListTemp = [];
+                const stream = this.clientMinIO.listObjectsV2('patrimony-management-images', folder, true, '');
+                stream.on('data', obj => objectsListTemp.push(obj.name));
+                stream.on('error', reject);
+                stream.on('end', () => {
+                    resolve(objectsListTemp);
+                });
+            });
+            return objectsList;
         });
     }
     deleteFile(filename) {

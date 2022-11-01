@@ -62,7 +62,7 @@ class PatrimonyController {
       if (patrimony === null) { return response.status(400).send({ error: 'Patrimony not found' }) }
       if (file === undefined) { return response.status(400).send({ error: 'file must be sent!' }) }
       const s3 = new S3Storage()
-      await s3.saveFile(file.filename, id)
+      await s3.saveFileMinIO(file.filename, id)
 
       return response.json({ success: true })
     } catch ({ message }) {
@@ -135,7 +135,8 @@ class PatrimonyController {
       const params = request.params
       const { id } = params
       const s3 = new S3Storage()
-      const links = await s3.getFile(id)
+      const links: string[] = await s3.getImagesUrlMinIO(id)
+
       if (links === undefined) return response.status(200).send([])
 
       return response.status(200).send(links)

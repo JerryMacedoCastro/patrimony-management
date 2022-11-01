@@ -67,7 +67,7 @@ app.use('/api/v1', routes)
 /**
  * Server Activation
  */
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log('Starting server...')
 
   AppDataSource.initialize()
@@ -75,5 +75,6 @@ app.listen(PORT, () => {
       console.log('database connected')
     })
     .catch((error) => console.log(error))
+
   console.log(`Listening on port ${PORT}!`)
 })
