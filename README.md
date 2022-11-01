@@ -22,11 +22,11 @@
 - Inicie o docker  
 `docker-compose up --build`
 
-- Altera "PORT" para a porta escolhida no passo anterior. A documentação da API estará disponível em _http://localhost:PORT/api/v1/docs_ 
+- Altere "PORT" para a porta escolhida no passo anterior. A documentação da API estará disponível em _http://localhost:PORT/api/v1/docs_ 
 
 
 - Para realizar o upload de arquivos no MinIO é necessário entrar no console com as credenciais 
-> Username: _Q3AM3UQ867SPQQA43P2F_
+> Username: _Q3AM3UQ867SPQQA43P2F_  
 > Password: _zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG_
 
 - Crie um Bucket com o nome _patrimony-management-images_
