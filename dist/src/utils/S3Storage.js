@@ -50,18 +50,18 @@ class S3Storage {
         this.client = new aws_sdk_1.default.S3({
             region: 'us-east-1',
             credentials: {
-                accessKeyId: 'Q3AM3UQ867SPQQA43P2F',
-                secretAccessKey: 'zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG'
+                accessKeyId: keyId,
+                secretAccessKey: secretKey,
+                sessionToken: process.env.aws_session_token
             },
-            endpoint: 'http://play.minio.io:9000',
-            sslEnabled: false,
-            s3ForcePathStyle: true
+            endpoint: 'http://play.minio.io:9000'
         });
         this.clientMinIO = new Minio.Client({
-            endPoint: 's3.amazonaws.com',
-            accessKey: keyId,
-            secretKey,
-            sessionToken: process.env.aws_session_token
+            endPoint: 'play.min.io',
+            port: 9000,
+            useSSL: true,
+            accessKey: 'Q3AM3UQ867SPQQA43P2F',
+            secretKey: 'zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG'
         });
     }
     saveFile(filename, folder) {
@@ -81,6 +81,25 @@ class S3Storage {
                 ContentType
             })
                 .promise();
+            yield fs_1.default.promises.unlink(originalPath);
+        });
+    }
+    saveFileMinIO(filename, folder) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const originalPath = path_1.default.resolve(upload_1.default.directory, filename);
+            const ContentType = mime_1.default.getType(originalPath);
+            if (ContentType === null) {
+                throw new Error('File not found');
+            }
+            const fileContent = yield fs_1.default.promises.readFile(originalPath);
+            this.clientMinIO.putObject('patrimony-management-images', `${folder}/${filename}`, fileContent, function (err, etag) {
+                if (err !== null) {
+                    throw new Error(`Erro: ${err.message}`);
+                }
+                else {
+                    console.log(etag);
+                }
+            });
             yield fs_1.default.promises.unlink(originalPath);
         });
     }
@@ -106,6 +125,18 @@ class S3Storage {
                 });
             });
             return objectsList;
+        });
+    }
+    getImagesUrlMinIO(folder) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const objectsListTemp = [];
+            const objects = yield this.getImagesFromFolderMinIO(folder);
+            objects.map((obj) => this.clientMinIO.presignedGetObject('patrimony-management-images', obj, 24 * 60 * 60, function (err, presignedUrl) {
+                if (err != null)
+                    return console.log(err);
+                objectsListTemp.push(presignedUrl);
+            }));
+            return objectsListTemp;
         });
     }
     deleteFile(filename) {

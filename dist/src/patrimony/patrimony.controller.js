@@ -78,7 +78,7 @@ class PatrimonyController {
                     return response.status(400).send({ error: 'file must be sent!' });
                 }
                 const s3 = new S3Storage_1.default();
-                yield s3.saveFile(file.filename, id);
+                yield s3.saveFileMinIO(file.filename, id);
                 return response.json({ success: true });
             }
             catch ({ message }) {
@@ -152,7 +152,7 @@ class PatrimonyController {
                 const params = request.params;
                 const { id } = params;
                 const s3 = new S3Storage_1.default();
-                const links = yield s3.getFile(id);
+                const links = yield s3.getImagesUrlMinIO(id);
                 if (links === undefined)
                     return response.status(200).send([]);
                 return response.status(200).send(links);

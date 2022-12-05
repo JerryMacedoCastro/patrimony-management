@@ -32,12 +32,13 @@ const user_entity_1 = __importDefault(require("./src/user/user.entity"));
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const AppDataSource = new typeorm_1.DataSource({
+    url: 'postgres://postgres:example@db:5432/postgres',
     type: 'postgres',
-    host: process.env.POSTGRES_HOST,
+    host: 'localhost',
     port: Number(process.env.POSTGRES_PORT),
-    username: process.env.POSTGRES_USER,
-    password: process.env.POSTGRES_PASSWORD,
-    database: process.env.POSTGRES_DB,
+    username: 'postgres',
+    password: 'example',
+    database: 'postgres',
     entities: [patrimony_entity_1.default, user_entity_1.default],
     synchronize: true
 });
